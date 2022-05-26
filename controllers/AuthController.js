@@ -70,3 +70,11 @@ exports.post_signup = (req, res, next) => {
     })
   })
 }
+
+exports.fetchAll=(req, res, next) => {
+  User.find({}).then(users =>{
+      if(users){
+          return res.status(200).json(users)
+      }
+  }).catch(error => next(error))
+}
