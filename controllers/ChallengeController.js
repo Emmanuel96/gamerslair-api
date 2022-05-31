@@ -31,7 +31,7 @@ exports.create = (req, res, next) => {
 }
 
 exports.fetchAll=(req, res, next) => {
-    Challenge.find({}).then(challenges =>{
+    Challenge.find({}).populate('sender','username').populate('reciever','username').then(challenges =>{
         if(challenges){
             return res.status(200).json(challenges)
         }
@@ -39,7 +39,7 @@ exports.fetchAll=(req, res, next) => {
 }
 
 exports.fetchOne=(req, res, next) => {
-    Challenge.findById(req.params.id).then(challenge =>{
+    Challenge.findById(req.params.id).populate('sender','username').populate('reciever','username').then(challenge =>{
         if(challenge){
             return res.status(200).json(challenge)
         }
@@ -59,7 +59,7 @@ exports.fetchIncoming=(req, res, next) => {
                 message: "User not found"
             })
         }
-        Challenge.find({reciever:user}).then(challenges =>{
+        Challenge.find({reciever:user}).populate('sender','username').populate('reciever','username').then(challenges =>{
             if(challenges){
                 return res.status(200).json(challenges)
             }
@@ -79,7 +79,7 @@ exports.fetchOutgoing=(req, res, next) => {
                 message: "User not found"
             })
         }
-        Challenge.find({sender:user}).then(challenges =>{
+        Challenge.find({sender:user}).populate('sender','username').populate('reciever','username').then(challenges =>{
             if(challenges){
                 return res.status(200).json(challenges)
             }
