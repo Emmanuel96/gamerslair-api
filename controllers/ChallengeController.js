@@ -2,46 +2,31 @@ const Challenge = require("../models/Challenge")
 const User = require("../models/User")
 
 exports.create = (req, res, next) => {
-    let sender_id = req.body.sender_id
-    let reciever_id = req.body.reciever_id
-    let console = req.body.console
-    let game = req.body.game
-    let bet_amount = req.body.bet_amount
-    let rules = req.body.rules
-    
     const newChallenge = new Challenge({
-        "sender":sender_id,
-        "reciever":reciever_id,
-        "console":console,
-        "game":game,
-        "bet_amount":bet_amount,
-        "rules":rules
+        "console":req.body.console,
+        "game":req.body.game,
+        "bet_amount":req.body.bet_amount,
+        "rules":req.body.rules
     })
 
-    let challenge_sender = User.findById(sender_id).then(sender =>{
-        if(!sender){
-            return res.status(400).json({
-                success: false,
-                message: "The sender of this challenge does not exist"
-            })
-        }
-    }).catch(error => next(error))
-    
-    let challenge_reciever = User.findById(reciever_id).then(reciever => {
-        if(!reciever){
-            return res.status(400).json({
-                success: false,
-                message: "The reciever of this challenge does not exist"
-            })
-        }
-    }).catch(error => next(error))
-
-    newChallenge.save().then(savedChallenge => {
-        res.status(201).json({
-            success: true,
-            message: "Challenge creation successfull",
-            "savedChallenge":savedChallenge
-        })
+    User.findOne({_id: req.user.id}).then(user => {
+        newChallenge.sender = user
+        User.findById(req.body.reciever_id).then(reciever => {
+            if(!reciever){
+                return res.status(400).json({
+                    success: false,
+                    message: "Challenge reciever not found"
+                })
+            }
+            newChallenge.reciever = reciever
+            newChallenge.save().then(savedChallenge => {
+                res.status(201).json({
+                    success: true,
+                    message: "Challenge creation successfull",
+                    "savedChallenge":savedChallenge
+                })
+            }).catch(error => next(error))
+        }).catch(error => next(error))
     }).catch(error => next(error))
 }
 
@@ -50,12 +35,11 @@ exports.fetchAll=(req, res, next) => {
         if(challenges){
             return res.status(200).json(challenges)
         }
-    }).catch(error => next(error))
+    }).catch(error => next(error))    
 }
 
 exports.fetchOne=(req, res, next) => {
-    let id = req.params.id
-    Challenge.findById(id).then(challenge =>{
+    Challenge.findById(req.params.id).then(challenge =>{
         if(challenge){
             return res.status(200).json(challenge)
         }
@@ -68,52 +52,66 @@ exports.fetchOne=(req, res, next) => {
 }
 
 exports.fetchIncoming=(req, res, next) => {
-    let user_id = req.params.user_id
-    Challenge.find({reciever:user_id}).then(challenge =>{
-        if(challenge){
-            return res.status(200).json(challenge)
+    User.findOne({_id: req.user.id}).then(user => {
+        if(!user){
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
         }
-
-        return res.status(400).json({
-            success: false,
-            message:"No incoming challenges found for this user"
-        })
-    }).catch(error => next(error))
+        Challenge.find({reciever:user}).then(challenges =>{
+            if(challenges){
+                return res.status(200).json(challenges)
+            }
+            return res.status(400).json({
+                success: false,
+                message:"No incoming challenges found for this user"
+            })
+        }).catch(error => next(error))
+    }).catch(error => next(error))   
 }
 
 exports.fetchOutgoing=(req, res, next) => {
-    let user_id = req.params.user_id
-    Challenge.find({sender:user_id}).then(challenge =>{
-        if(challenge){
-            return res.status(200).json(challenge)
+    User.findOne({_id: req.user.id}).then(user => {
+        if(!user){
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
         }
-
-        return res.status(400).json({
-            success: false,
-            message:"No outgoing challenges found for this user"
-        })
+        Challenge.find({sender:user}).then(challenges =>{
+            if(challenges){
+                return res.status(200).json(challenges)
+            }
+            return res.status(400).json({
+                success: false,
+                message:"No incoming challenges found for this user"
+            })
+        }).catch(error => next(error))
     }).catch(error => next(error))
 }
 
 exports.update=(req, res, next) => {
-    let id = req.params.id
-    let sender_id = req.body.sender_id
-    let reciever_id = req.body.reciever_id
-    let console = req.body.console
-    let game = req.body.game
-    let bet_amount = req.body.bet_amount
-    let rules = req.body.rules
-    
     const challengeUpdate = {
-        "sender":sender_id,
-        "reciever":reciever_id,
-        "console":console,
-        "game":game,
-        "bet_amount":bet_amount,
-        "rules":rules
+        "console":req.body.console,
+        "game":req.body.game,
+        "bet_amount":req.body.bet_amount,
+        "rules":req.body.rules
     }
 
-    Challenge.findByIdAndUpdate(id, {returnDocument:'after'}).then(updatedChalenge =>{
+    if(req.body.reciever_id != undefined){
+        User.findById(req.body.reciever_id).then(reciever => {
+            if(!reciever){
+                return res.status(400).json({
+                    success: false,
+                    message: "Challenge reciever not found"
+                })
+            }
+            challengeUpdate.reciever = reciever
+        }).catch(error => next(error))
+    }
+
+    Challenge.findByIdAndUpdate(req.params.id, challengeUpdate, {returnDocument:'after'}).then(updatedChalenge =>{
         res.status(201).json({
             success: true,
             message: "Challenge update successfull",
@@ -123,8 +121,7 @@ exports.update=(req, res, next) => {
 }
 
 exports.delete=(req, res, next) => {
-    let id = req.params.id
-    Challenge.findByIdAndDelete(id, {returnDocument:'after'}).then(deletedChalenge =>{
+    Challenge.findByIdAndDelete(req.params.id, {returnDocument:'after'}).then(deletedChalenge =>{
         res.status(201).json({
             success: true,
             message: "Challenge delete successfull",

@@ -14,11 +14,12 @@ exports.post_signin = (req, res, next) => {
         message: "You have entered an invalid username or password"
       })
     }
-
+    user_id = user._id
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) throw err
       if (isMatch) {
         const user = {
+          id: user_id,
           email: req.body.email.toLowerCase(),
           password: req.body.password
         }
