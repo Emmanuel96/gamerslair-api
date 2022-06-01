@@ -12,4 +12,6 @@ Router.get('/api/challenge/fetch_incoming', authenticateToken, ChallengeControll
 Router.get('/api/challenge/fetch_outgoing', authenticateToken, ChallengeController.fetchOutgoing)
 Router.put('/api/challenge/update/:id', authenticateToken, ChallengeController.update)
 Router.delete('/api/challenge/delete/:id', authenticateToken, ChallengeController.delete)
+
+Router.put('/api/challenge/accept-or-reject/:id', authenticateToken, ChallengeController.acceptOrReject)
 module.exports = Router

@@ -32,6 +32,12 @@ const ChallengeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
+  state:{
+    type:String,
+    default:"created",
+    required: true,
+  },
 })
 
 module.exports = mongoose.model('Challenge', ChallengeSchema)

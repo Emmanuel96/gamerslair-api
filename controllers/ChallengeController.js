@@ -129,3 +129,31 @@ exports.delete=(req, res, next) => {
         })
     }).catch(error => next(error))
 }
+
+exports.acceptOrReject=(req, res, next)=>{
+    console.log(req.params.id)
+    Challenge.findById(req.params.id).then(challenge =>{
+        if(!challenge){
+            return res.status(400).json({
+                success: false,
+                message:"Challenge not found"
+            })    
+        }
+        if(challenge.reciever != req.user.id){
+            res.status(403).json({
+                success:false,
+                message:"Forbiden"
+            })
+        }
+        challengeUpdate={
+            "state": req.body.state
+        }
+        Challenge.findByIdAndUpdate(req.params.id, challengeUpdate, {returnDocument:'after'}).then(updatedChalenge =>{
+            res.status(201).json({
+                success: true,
+                message: "Challenge update successfull",
+                "updatedChalenge":updatedChalenge
+            })
+        }).catch(error => next(error))
+    }).catch(error => next(error))
+}
