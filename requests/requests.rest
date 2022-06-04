@@ -17,6 +17,5 @@ Content-Type: application/json
 }
 
 ###
-
 GET http://localhost:3002/api/test
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAdXNlci5jb20iLCJwYXNzd29yZCI6InVzZXJAdXNlci5jb20iLCJpYXQiOjE2NTI1MjczNzEsImV4cCI6MTY1MjUyNzM4Nn0.6QEKKf_IGwvGkCKNxI6sBjR42XEqujqCTOXKFkM6y2Q
