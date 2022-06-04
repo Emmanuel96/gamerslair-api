@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const bcrypt = require("bcryptjs")
+const logger = require('../utils/logger')
 const jwt = require('jsonwebtoken')
 const generateAccessToken = require('../middlewares/jwt').generateAccessToken
 
@@ -26,7 +27,7 @@ exports.post_signin = (req, res, next) => {
         const accessToken = generateAccessToken(user)
 
         const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
-
+        
         res.json({
           accessToken, refreshToken
         })
