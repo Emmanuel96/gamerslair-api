@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const ChallengeSchema = new mongoose.Schema({
+const GameSchema = new mongoose.Schema({
   sender:{
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
@@ -33,12 +33,17 @@ const ChallengeSchema = new mongoose.Schema({
     required: true
   },
 
-  state:{
+  progress:{
     type:String,
-    enum:["created", "accepted", "rejected"],
+    enum:["created","reported","verified"],
     default:"created",
     required: true,
   },
+  
+  winner:{
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
+  }
 })
 
-module.exports = mongoose.model('Challenge', ChallengeSchema)
+module.exports = mongoose.model('Game', GameSchema)

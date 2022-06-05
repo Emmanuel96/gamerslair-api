@@ -1,5 +1,6 @@
 const Challenge = require("../models/Challenge")
 const User = require("../models/User")
+const GameController = require('./GameController')
 
 exports.create = (req, res, next) => {
     const newChallenge = new Challenge({
@@ -59,7 +60,7 @@ exports.fetchIncoming=(req, res, next) => {
                 message: "User not found"
             })
         }
-        Challenge.find({reciever:user}).populate('sender','username').populate('reciever','username').then(challenges =>{
+        Challenge.find({reciever:user, state:'created'}).populate('sender','username').populate('reciever','username').then(challenges =>{
             if(challenges){
                 return res.status(200).json(challenges)
             }
@@ -79,7 +80,7 @@ exports.fetchOutgoing=(req, res, next) => {
                 message: "User not found"
             })
         }
-        Challenge.find({sender:user}).populate('sender','username').populate('reciever','username').then(challenges =>{
+        Challenge.find({sender:user, state:'created'}).populate('sender','username').populate('reciever','username').then(challenges =>{
             if(challenges){
                 return res.status(200).json(challenges)
             }
@@ -148,11 +149,18 @@ exports.acceptOrReject=(req, res, next)=>{
         challengeUpdate={
             "state": req.body.state
         }
-        Challenge.findByIdAndUpdate(req.params.id, challengeUpdate, {returnDocument:'after'}).then(updatedChalenge =>{
+        
+        Challenge.findByIdAndUpdate(req.params.id, challengeUpdate, {returnDocument:'after'}).populate('sender','username').populate('reciever','username').then(updatedChallenge =>{            
+            if(req.body.state = "accepted"){
+                create_game = GameController.createGame(updatedChallenge)
+                if(!create_game){
+                    return res.status(501).send(new Error('Unable to create game from challenge'))
+                }
+            }
             res.status(201).json({
                 success: true,
                 message: "Challenge update successfull",
-                "updatedChalenge":updatedChalenge
+                "updatedChallenge":updatedChallenge
             })
         }).catch(error => next(error))
     }).catch(error => next(error))
