@@ -43,6 +43,11 @@ const GameSchema = new mongoose.Schema({
   winner:{
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
+  },
+  
+  reported_by:{
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
   }
 })
 

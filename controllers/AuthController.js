@@ -29,7 +29,7 @@ exports.post_signin = (req, res, next) => {
         const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
 
         res.json({
-          accessToken, refreshToken
+          accessToken, refreshToken, user
         })
       }else{
         res.status(404).json({
