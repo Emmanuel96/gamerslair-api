@@ -6,4 +6,4 @@ Router.post('/api/auth/signin', AuthController.post_signin)
 
 Router.post('/api/auth/signup', AuthController.post_signup)
 
-module.exports = Router
+export default { Router }

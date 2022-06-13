@@ -18,4 +18,4 @@ Router.get('/api/test', authenticateToken, (req, res, next) => {
   res.json(posts.filter(post => post.email === req.user.email))
 })
 
-module.exports = Router
+export default { Router }
