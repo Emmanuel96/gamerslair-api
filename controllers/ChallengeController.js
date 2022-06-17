@@ -1,6 +1,7 @@
 const Challenge = require("../models/Challenge")
 const User = require("../models/User")
 const GameController = require('./GameController')
+const {io} = require('../utils/socket')
 
 exports.create = (req, res, next) => {
     const newChallenge = new Challenge({
@@ -26,6 +27,7 @@ exports.create = (req, res, next) => {
                     message: "Challenge creation successfull",
                     "savedChallenge":savedChallenge
                 })
+                io.to(req.body.reciever_id).emit('new-challenge', {challenge:savedChallenge});
             }).catch(error => next(error))
         }).catch(error => next(error))
     }).catch(error => next(error))
