@@ -1,5 +1,6 @@
 const Challenge = require("../models/Challenge")
 const User = require("../models/User")
+const Gmae = require("../models/Game")
 const GameController = require('./GameController')
 
 exports.create = (req, res, next) => {
@@ -137,7 +138,6 @@ exports.delete=(req, res, next) => {
 }
 
 exports.acceptOrReject=(req, res, next)=>{
-    console.log(req.params.id)
     Challenge.findById(req.params.id).then(challenge =>{
         if(!challenge){
             return res.status(400).json({
@@ -157,12 +157,12 @@ exports.acceptOrReject=(req, res, next)=>{
         
         Challenge.findByIdAndUpdate(req.params.id, challengeUpdate, {returnDocument:'after'}).populate('sender','username').populate('reciever','username').then(updatedChallenge =>{            
             if(req.body.state = "accepted"){
-                create_game = GameController.createGame(updatedChallenge)
-                if(!create_game){
+                GameController.createGame(updatedChallenge).then((createdGame =>{
+                    req.app.io.to(createdGame.sender.id).to(createdGame.reciever.id).emit('challenge-response', {'response':'accepted', 'game':createdGame});
+                })).catch(err =>{
+                    console.log(err)
                     return res.status(501).send(new Error('Unable to create game from challenge'))
-                }
-
-                io.to(create_game.sender._id).emit('challenge-accepted', {game:create_game});
+                })
             }
             res.status(201).json({
                 success: true,

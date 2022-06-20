@@ -13,7 +13,7 @@ exports.createGame = async (challenge) => {
     })
 
     return await newGame.save().then(savedGame => {
-        return true
+        return savedGame
     }).catch(error => error)
 }
 
