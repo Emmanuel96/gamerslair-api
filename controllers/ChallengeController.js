@@ -1,7 +1,6 @@
 const Challenge = require("../models/Challenge")
 const User = require("../models/User")
 const GameController = require('./GameController')
-const {io} = require('../utils/socket')
 
 exports.create = (req, res, next) => {
     const newChallenge = new Challenge({
@@ -27,7 +26,7 @@ exports.create = (req, res, next) => {
                     message: "Challenge creation successfull",
                     "savedChallenge":savedChallenge
                 })
-                io.to(req.body.reciever_id).emit('new-challenge', {challenge:savedChallenge});
+                req.app.io.to(req.body.reciever_id).emit('new-challenge', {newChallenge:savedChallenge});
             }).catch(error => next(error))
         }).catch(error => next(error))
     }).catch(error => next(error))
@@ -62,7 +61,11 @@ exports.fetchIncoming=(req, res, next) => {
                 message: "User not found"
             })
         }
-        Challenge.find({reciever:user, state:'created'}).populate('sender','username').populate('reciever','username').then(challenges =>{
+        Challenge.find({reciever:user, state:'created'})
+        .populate('sender','username')
+        .populate('reciever','username')
+        .sort('-_id')
+        .then(challenges =>{
             if(challenges){
                 return res.status(200).json(challenges)
             }
@@ -158,6 +161,8 @@ exports.acceptOrReject=(req, res, next)=>{
                 if(!create_game){
                     return res.status(501).send(new Error('Unable to create game from challenge'))
                 }
+
+                io.to(create_game.sender._id).emit('challenge-accepted', {game:create_game});
             }
             res.status(201).json({
                 success: true,

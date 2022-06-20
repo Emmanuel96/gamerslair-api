@@ -1,19 +1,22 @@
-const {Server} = require('socket.io');
-const io = new Server();
+const socketManager = (socket, next) => {
+//   const sessionID = socket.handshake.auth.sessionID;
+//   if (sessionID) {
+//     // find existing session
+//     const session = sessionStore.findSession(sessionID);
+//     if (session) {
+//       socket.sessionID = sessionID;
+//       socket.userID = session.userID;
+//       return next();
+//     }
+//   }
+  const userID = socket.handshake.auth.userId;
+//   if (!userID) {
+//     return next(new Error("invalid userId"));
+//   }
+  // create new session
+//   socket.sessionID = randomId();
+  socket.userID = userID;
+  next();
+}
 
-io.use((socket, next) => {
-    const userId = socket.handshake.auth.userId;
-    if (!userId) {
-      return next(new Error("invalid userId"));
-    }
-    socket.userId = userId;
-    next();
-});
-
-io.on("connection", function (socket) {
-    socket.join(socket.userId)
-    console.log(`user ${socket.userId} connected`);
-    io.emit('new-event',{userId:socket.userId})
-});
-
-exports.io = io;
+module.exports.socketManager = socketManager
