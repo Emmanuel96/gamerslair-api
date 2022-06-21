@@ -72,6 +72,9 @@ exports.report= (req, res, next)=>{
                 message: "Game report successfull",
                 "reportedGame":reportedGame
             })
+
+            toSocketAddr = reportedGame.sender.id == req.user.id ? reportedGame.reciever.id : reportedGame.sender.id
+            req.app.io.to(toSocketAddr).emit('game-report',reportedGame)
         }).catch(error => next(error))
     }).catch(error => next(error))
 }
