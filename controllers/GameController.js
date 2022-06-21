@@ -111,6 +111,8 @@ exports.verify= (req, res, next)=>{
                 message: "Game report successfull",
                 "verifiedGame":verifiedGame
             })
+            toSocketAddr = verifiedGame.sender.id == req.user.id ? verifiedGame.reciever.id : verifiedGame.sender.id
+            req.app.io.to(toSocketAddr).emit('game-verified',verifiedGame)
         }).catch(error => next(error))
     }).catch(error => next(error))
 }
