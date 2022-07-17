@@ -7,15 +7,15 @@ exports.post_signin = (req, res, next) => {
   email = req.body.email.toLowerCase()
   password = req.body.password
 
-  User.findOne({email: email}).then(user => {
-    if(!user){
+  User.findOne({email: email}).then(db_user => {
+    if(!db_user){
       return res.status(404).json({
         sucess: false,
         message: "You have entered an invalid username or password"
       })
     }
-    user_id = user._id
-    bcrypt.compare(password, user.password, (err, isMatch) => {
+    user_id = db_user._id
+    bcrypt.compare(password, db_user.password, (err, isMatch) => {
       if (err) throw err
       if (isMatch) {
         const user = {
@@ -27,7 +27,10 @@ exports.post_signin = (req, res, next) => {
         const accessToken = generateAccessToken(user)
 
         const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
-
+        
+        delete user['password']
+        user['username'] = db_user.username
+        user['account_bal'] = db_user.account_bal
         res.json({
           accessToken, refreshToken, user
         })

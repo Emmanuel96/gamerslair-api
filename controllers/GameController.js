@@ -116,3 +116,32 @@ exports.verify= (req, res, next)=>{
         }).catch(error => next(error))
     }).catch(error => next(error))
 }
+
+exports.fetch_profile=(req, res, next)=>{
+    const user = req.user.id
+    Game.find({$or:[{reciever:user}, {sender:user}]}).then(games => {
+        total_games= Object.keys(games).length
+
+        games_as_array = Object.entries(games)
+
+        won_games = games_as_array.filter(([key, value])=>{
+            if(value.winner == user){
+                return [key, value]
+            }
+        })
+        total_games_won = won_games.length
+
+        ongoing_games = games_as_array.filter(([key, value])=>{
+            if(['created', 'reported'].includes(value.progress)){
+                return [key, value]
+            }
+        })
+        total_ongoing_games = ongoing_games.length
+        
+        res.status(201).json({
+            total_games,
+            total_games_won,
+            total_ongoing_games
+        })
+    }).catch(error => next(error))
+}
