@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import config from '../utils/config'
 
 interface userObj {
     email: string,
@@ -12,7 +13,7 @@ const authenticateToken = (req: Request | any, res: Response, next?: any): any =
 
     if (token === null) return res.status(401);
     
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user): Response | void => {
+    jwt.verify(token, config.ACCESS_TOKEN_SECRET, (error, user): Response | void => {
         if (error)
             return res.status(403);
         req.user = user;
@@ -20,7 +21,9 @@ const authenticateToken = (req: Request | any, res: Response, next?: any): any =
     });
 };
 const generateAccessToken = (user: userObj) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '86400s' });
+    return jwt.sign(user, config.ACCESS_TOKEN_SECRET, { expiresIn: '86400s' });
 };
 
-export { authenticateToken, generateAccessToken };
+const tokens = { authenticateToken, generateAccessToken };
+
+export default tokens

@@ -1,12 +1,12 @@
-const reverse = (string) => {
+const reverse = (string: string): string => {
   return string
     .split('')
     .reverse()
     .join('')
 }
 
-const average = (array) => {
-  const reducer = (sum, item) => {
+const average = (array: Array<number>): number => {
+  const reducer = (sum: number, item: number) => {
     return sum + item
   }
 

@@ -1,10 +1,10 @@
 import express from 'express';
 import { Request, Response } from 'express';
-import { authenticateToken } from '../middlewares/jwt';
+import tokens from '../middlewares/jwt';
 
 const Router = express.Router()
 
-Router.get('/api/test', authenticateToken, (req: Request | any, res: Response): void => {
+Router.get('/api/test', tokens.authenticateToken, (req: Request | any, res: Response): Response => {
   const posts: object[] = [
     {
       email: "admin@admin.com",
@@ -17,7 +17,7 @@ Router.get('/api/test', authenticateToken, (req: Request | any, res: Response): 
     }
   ]
 
-  res.json(
+  return res.json(
     posts.filter((post: any) => post.email === req.user.email)
   )
 })
