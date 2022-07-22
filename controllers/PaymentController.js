@@ -10,17 +10,20 @@ exports.create_payment_intent = async (req, res) => {
       return res.status(419).send('invalid amount');
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: req.body.amount*100,
-      currency: "usd",
-      // automatic_payment_methods: {
-      //   enabled: true,
-      // },
-    });
-  
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    });
+    try{
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: req.body.amount*100,
+        currency: "usd",
+        payment_method_types: ['card'],
+      });
+    
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    }catch(err){
+      console.log(err)
+      res.status(422).send(`${err}`);
+    }
 }
 
 exports.updateUserAccount = (req, res, next) =>{
