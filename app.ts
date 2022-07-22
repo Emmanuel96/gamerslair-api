@@ -12,6 +12,7 @@ import authRouter from './routes/auth';
 import testRouter from './routes/testRoute';
 import challengeRouter from './routes/challenge';
 import gameRouter from './routes/game';
+import paymentRouter from './routes/payment';
 import { unknownEndpoint, errorHandler, } from './middlewares/error';
 
 const app: any = express()
@@ -25,6 +26,7 @@ app.use(authRouter)
 app.use(testRouter)
 app.use(challengeRouter)
 app.use(gameRouter)
+app.use(paymentRouter)
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
