@@ -16,6 +16,12 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  
+  account_bal: {
+    type: Number,
+    required: true,
+    default: 0
   }
 })
 
