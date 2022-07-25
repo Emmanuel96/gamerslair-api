@@ -87,4 +87,12 @@ const post_signup = (req: Request, res: Response, next: any): void => {
     }).catch((error: Error): void => next(error));
 };
 
-export { post_signin, post_signup }
+const fetchAll = (req: Request, res: Response, next: any): void => {
+  User.find({}).then((users: object) =>{
+      if(users){
+          return res.status(200).json(users)
+      }
+  }).catch(error => next(error))
+}
+
+export { post_signin, post_signup, fetchAll }
